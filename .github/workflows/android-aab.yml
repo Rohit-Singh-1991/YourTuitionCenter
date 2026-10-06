@@ -1,71 +1,178 @@
-name: Build YourTuitionCenter Android AAB
+name: Build Your Tuition Center Play Store AAB
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/android-aab.yml'
 
 permissions:
   contents: read
 
 jobs:
-  android-aab:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
-      - name: Install web dependencies
-        run: npm install --no-package-lock
-      - name: Build web app
-        run: npm run build
-      - name: Install Capacitor
-        run: npm install --no-save @capacitor/core @capacitor/cli @capacitor/android
-      - name: Add Android platform
-        run: npx cap add android
-      - name: Sync Android
-        run: npx cap sync android
-      - name: Generate upload signing key
-        env:
-          STORE_PASSWORD: ${{ secrets.PLAY_STORE_UPLOAD_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.PLAY_STORE_UPLOAD_KEY_PASSWORD }}
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Install Gradle
         run: |
-          if [ -z "$STORE_PASSWORD" ]; then STORE_PASSWORD="TempUpload_${{ github.run_id }}_ChangeMe"; fi
-          if [ -z "$KEY_PASSWORD" ]; then KEY_PASSWORD="$STORE_PASSWORD"; fi
-          keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000 -storepass "$STORE_PASSWORD" -keypass "$KEY_PASSWORD" -dname "CN=YourTuitionCenter, OU=Mobile, O=App Publisher, L=Delhi, ST=Delhi, C=IN"
-          echo "storePassword=$STORE_PASSWORD" > signing-summary.txt
-          echo "keyPassword=$KEY_PASSWORD" >> signing-summary.txt
-          echo "keyAlias=upload" >> signing-summary.txt
-          echo "storeFile=upload-keystore.jks" >> signing-summary.txt
-          echo "::add-mask::$STORE_PASSWORD"
-          echo "::add-mask::$KEY_PASSWORD"
-      - name: Build signed release AAB
-        env:
-          STORE_PASSWORD: ${{ secrets.PLAY_STORE_UPLOAD_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.PLAY_STORE_UPLOAD_KEY_PASSWORD }}
+          curl -fsSL -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.9/bin" >> "$GITHUB_PATH"
+
+      - name: Create Android project
+        shell: bash
         run: |
-          if [ -z "$STORE_PASSWORD" ]; then STORE_PASSWORD="TempUpload_${{ github.run_id }}_ChangeMe"; fi
-          if [ -z "$KEY_PASSWORD" ]; then KEY_PASSWORD="$STORE_PASSWORD"; fi
-          cd android
-          ./gradlew bundleRelease -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/upload-keystore.jks" -Pandroid.injected.signing.store.password="$STORE_PASSWORD" -Pandroid.injected.signing.key.alias=upload -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
-      - name: Rename and verify AAB
+          set -euo pipefail
+          mkdir -p app/src/main/java/in.yourtuitioncenter.app app/src/main/res/values app/src/main/res/xml
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name='YourTuitionCenter-android'
+          include ':app'
+          EOF
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+          cat > gradle.properties <<'EOF'
+          android.useAndroidX=true
+          org.gradle.jvmargs=-Xmx3g
+          EOF
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'in.yourtuitioncenter.app'
+              compileSdk 35
+              defaultConfig {
+                  applicationId 'in.yourtuitioncenter.app'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0.0'
+              }
+              buildTypes {
+                  release { minifyEnabled false }
+              }
+          }
+          EOF
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <application android:theme="@style/AppTheme" android:label="Your Tuition Center" android:usesCleartextTraffic="false" android:resizeableActivity="true">
+                  <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#1565C0</item>
+                  <item name="android:navigationBarColor">#000000</item>
+                  <item name="android:statusBarColor">#1565C0</item>
+                  <item name="android:windowLightStatusBar">false</item>
+              </style>
+          </resources>
+          EOF
+          cat > app/src/main/java/in.yourtuitioncenter.app/MainActivity.java <<'EOF'
+          package in.yourtuitioncenter.app;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.webkit.WebResourceRequest;
+          import android.view.ViewGroup;
+          public class MainActivity extends Activity {
+            private WebView webView;
+            @Override public void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              webView = new WebView(this);
+              webView.setLayoutParams(new ViewGroup.LayoutParams(-1,-1));
+              setContentView(webView);
+              WebSettings s = webView.getSettings();
+              s.setJavaScriptEnabled(true);
+              s.setDomStorageEnabled(true);
+              s.setDatabaseEnabled(true);
+              s.setAllowFileAccess(false);
+              s.setAllowContentAccess(true);
+              s.setBuiltInZoomControls(false);
+              s.setDisplayZoomControls(false);
+              webView.setWebViewClient(new WebViewClient() {
+                @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+                  v.loadUrl(r.getUrl().toString()); return true;
+                }
+                @Override public boolean shouldOverrideUrlLoading(WebView v, String u) {
+                  v.loadUrl(u); return true;
+                }
+              });
+              webView.loadUrl("https://yourtuitioncenter-newdivide4-8630.vercel.app");
+            }
+            @Override public void onBackPressed() {
+              if (webView.canGoBack()) webView.goBack(); else super.onBackPressed();
+            }
+          }
+          EOF
+          gradle wrapper --gradle-version 8.9
+
+      - name: Generate Play upload key
+        shell: bash
         run: |
-          cp android/app/build/outputs/bundle/release/app-release.aab "YourTuitionCenter-release.aab"
-          test -s "YourTuitionCenter-release.aab"
-          unzip -t "YourTuitionCenter-release.aab" >/dev/null
-          ls -lh "YourTuitionCenter-release.aab"
-      - uses: actions/upload-artifact@v4
+          set -euo pipefail
+          PASSWORD="$(openssl rand -hex 20)"
+          echo "$PASSWORD" > upload-password.txt
+          keytool -genkeypair -v -keystore upload-keystore.jks -alias upload \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$PASSWORD" -keypass "$PASSWORD" \
+            -dname "CN=Your Tuition Center, OU=Mobile, O=App Publisher, L=Delhi, ST=Delhi, C=IN"
+          echo "keyAlias=upload" > signing-info.txt
+          echo "keystorePassword=$PASSWORD" >> signing-info.txt
+          echo "keyPassword=$PASSWORD" >> signing-info.txt
+          chmod 600 upload-keystore.jks upload-password.txt signing-info.txt
+
+      - name: Build signed AAB
+        run: |
+          set -euo pipefail
+          PASSWORD="$(cat upload-password.txt)"
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/upload-keystore.jks" \
+            -Pandroid.injected.signing.store.password="$PASSWORD" \
+            -Pandroid.injected.signing.key.alias=upload \
+            -Pandroid.injected.signing.key.password="$PASSWORD"
+          test -s app/build/outputs/bundle/release/app-release.aab
+
+      - name: Verify bundle
+        run: |
+          ls -lh app/build/outputs/bundle/release/app-release.aab
+          unzip -t app/build/outputs/bundle/release/app-release.aab >/dev/null
+
+      - name: Upload Play Store artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: YourTuitionCenter-play-store-${{ github.run_number }}
+          name: YourTuitionCenter-playstore-release
           path: |
-            YourTuitionCenter-release.aab
+            app/build/outputs/bundle/release/app-release.aab
             upload-keystore.jks
-            signing-summary.txt
+            signing-info.txt
+          if-no-files-found: error
           retention-days: 90
