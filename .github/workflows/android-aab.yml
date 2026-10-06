@@ -1,6 +1,8 @@
 name: Build Your Tuition Center Play Store AAB
 
 on:
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
   push:
     paths:
