@@ -14,7 +14,7 @@ import { BrochureButtons } from "@/components/site/BrochureButtons";
 import { InstallAppButton } from "@/components/site/InstallAppButton";
 import { MapLink } from "@/components/site/MapLink";
 import { EnquiryDialog } from "@/components/site/EnquiryDialog";
-import aiMarkAsset from "@/assets/ai-assistant-mark.png";
+import aiMarkAsset from "@/assets/ai-assistant-mark.svg";
 import { BRAND, BRANCHES } from "@/lib/brand";
 import { BranchBadge } from "@/components/site/BranchBadge";
 
