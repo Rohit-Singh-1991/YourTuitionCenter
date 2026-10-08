@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { Phone, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/teach-nation-logo.png";
+import logo from "@/assets/teach-nation-logo.svg";
 import {
   SidebarInset,
   SidebarProvider,
