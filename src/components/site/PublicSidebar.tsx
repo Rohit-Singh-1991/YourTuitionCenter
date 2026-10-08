@@ -32,7 +32,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { BRAND } from "@/lib/brand";
-import logo from "@/assets/teach-nation-logo.png";
+import logo from "@/assets/teach-nation-logo.svg";
 
 /** Same destinations as the previous header + three-dot menu — nothing added. */
 export const PUBLIC_NAV = [
