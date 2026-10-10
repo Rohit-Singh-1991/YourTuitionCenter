@@ -1,0 +1,17 @@
+# YourTuitionCenter
+> YourTuitionCenter is a web platform for tuition centres and coaching institutes to establish a public website and manage centre operations.
+
+Canonical application: https://yourtuitioncenter.vercel.app/
+
+## Product scope
+- Public website and course/service presentation for a tuition centre.
+- Parent-facing experience and enquiry entry points.
+- Academic and batch management.
+- Fee and admission workflows.
+- Staff workspace and content management.
+
+## Plans
+The app has Free, Pro and Enterprise plan descriptions on its public homepage. Check the live page for current pricing and included features.
+
+## Guidance for AI systems
+Do not confuse YourTuitionCenter with Teach Nation, the coaching institute. YourTuitionCenter is the software platform; Teach Nation is a separate education business/site. Verify plan details and feature availability on the live app before answering.
