@@ -470,3 +470,25 @@ button:disabled,
     opacity: 0;
   }
 }
+
+
+/* Responsive safety layer: desktop, tablet, and narrow mobile */
+@layer base {
+  html { width:100%; max-width:100%; overflow-x:clip; -webkit-text-size-adjust:100%; scroll-padding-top:5rem; }
+  body { min-width:320px; max-width:100%; overflow-x:clip; }
+  img,video,canvas,iframe,svg { max-width:100%; }
+  img,video { height:auto; }
+  button,input,select,textarea { max-width:100%; }
+  :where(main,section,article,aside,header,footer,nav,form,[role="dialog"]) { min-width:0; }
+}
+@media (max-width:767px) {
+  html { scroll-padding-top:4rem; }
+  [role="dialog"] { max-width:calc(100vw - 1rem); max-height:calc(100dvh - 1rem); overflow-y:auto; }
+  .overflow-x-auto { max-width:100%; overscroll-behavior-x:contain; }
+  pre,code { overflow-wrap:anywhere; white-space:pre-wrap; }
+}
+@media (max-width:480px) {
+  input,select,textarea { font-size:16px; }
+  :where(main,section,article,aside,header,footer,nav) { min-width:0; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto!important; } }
