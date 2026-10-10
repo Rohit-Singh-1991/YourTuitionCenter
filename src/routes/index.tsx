@@ -4,7 +4,36 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
-export const Route = createFileRoute("/")({ component: YourTuitionCenterHome });
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Tuition Centre Management Software & Website Builder | YourTuitionCenter" },
+      {
+        name: "description",
+        content: "Launch a professional tuition centre website and manage admissions, batches, fees, parent communication, staff and website content in one platform. Start free; upgrade as your centre grows.",
+      },
+      { property: "og:title", content: "YourTuitionCenter — Website & Management Software for Tuition Centres" },
+      {
+        property: "og:description",
+        content: "One platform for tuition centre websites, admissions, batches, fees, parent portals, staff and CMS. Start free and upgrade when ready.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "YourTuitionCenter",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: "Website builder and management software for tuition centres, coaching institutes and education centres.",
+      }),
+    }],
+  }),
+  component: YourTuitionCenterHome,
+});
 
 const plans = [
   { key:"free", name:"Free", price:"₹0", suffix:"", desc:"Launch a professional tuition-centre website and start building your digital presence.", features:["Professional public website","Centre profile and contact details","Course/service showcase","Parent enquiry entry points"] },
