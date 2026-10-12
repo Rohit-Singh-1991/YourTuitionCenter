@@ -10,7 +10,7 @@ const viewports = [
 test("subscription plans fit on initial load at mobile, tablet, and desktop sizes", async ({ page }) => {
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await page.goto(baseURL, { waitUntil: "networkidle", timeout: 60000 });
+    await page.goto(baseURL, { waitUntil: "domcontentloaded", timeout: 60000 });
 
     const plans = page.locator('section[aria-label="Subscription plans"] > div');
     await expect(plans).toHaveCount(3);
