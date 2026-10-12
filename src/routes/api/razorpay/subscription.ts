@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/razorpay/subscription")({
               total_count: 120,
               quantity: 1,
               customer_notify: 1,
-              notes: { plan, instituteName, slug, staffAccessCode },
+              notes: { plan, instituteName, slug },
             }),
           });
           const data = await response.json();
