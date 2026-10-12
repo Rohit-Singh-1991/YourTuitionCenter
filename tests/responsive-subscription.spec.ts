@@ -11,9 +11,15 @@ test("subscription plans fit on initial load at mobile, tablet, and desktop size
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto(baseURL, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.locator('section[aria-label="Subscription plans"]').waitFor();
+
+    await page.screenshot({ path: `test-results/subscription-${viewport.name}.png`, fullPage: false });
 
     const plans = page.locator('section[aria-label="Subscription plans"] > div');
     await expect(plans).toHaveCount(3);
+    await expect(plans.nth(0)).toContainText(["Free", "₹0", "Start for free"]);
+    await expect(plans.nth(1)).toContainText(["Pro", "₹299", "Choose Pro"]);
+    await expect(plans.nth(2)).toContainText(["Enterprise", "₹499", "Unlock everything"]);
     await expect(page.getByRole("heading", { name: "Free", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Pro", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Enterprise", exact: true })).toBeVisible();
@@ -36,7 +42,5 @@ test("subscription plans fit on initial load at mobile, tablet, and desktop size
       expect(box.left, `card starts left of viewport at ${viewport.name}`).toBeGreaterThanOrEqual(0);
       expect(box.right, `card extends right of viewport at ${viewport.name}`).toBeLessThanOrEqual(viewport.width);
     }
-
-    await page.screenshot({ path: `test-results/subscription-${viewport.name}.png`, fullPage: false });
   }
 });
