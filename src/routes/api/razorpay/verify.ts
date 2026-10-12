@@ -25,9 +25,9 @@ export const Route = createFileRoute("/api/razorpay/verify")({
             return Response.json({ error: "Subscription payment signature verification failed." }, { status: 400 });
           }
 
-          const auth = Buffer.from(keyId + ":" + secret).toString("base64");
+          const auth = "Basic " + Buffer.from(keyId + ":" + secret).toString("base64");
           const response = await fetch("https://api.razorpay.com/v1/subscriptions/" + encodeURIComponent(subscriptionId), {
-            headers: { Authorization: "Basic " + auth },
+            headers: { Authorization: auth },
           });
           const subscription = await response.json();
           if (!response.ok || subscription.id !== subscriptionId) {
@@ -35,13 +35,27 @@ export const Route = createFileRoute("/api/razorpay/verify")({
           }
 
           const plan = subscription.notes?.plan;
-          const expectedPlanId = plan === "pro" ? process.env.RAZORPAY_PRO_PLAN_ID
-            : plan === "enterprise" ? process.env.RAZORPAY_ENTERPRISE_PLAN_ID : undefined;
-          if (!expectedPlanId || subscription.plan_id !== expectedPlanId) {
-            return Response.json({ error: "The subscription does not match a configured plan." }, { status: 400 });
+          const expectedName = plan === "pro" ? "Your Tuition Center Pro Monthly"
+            : plan === "enterprise" ? "Your Tuition Center Enterprise Monthly" : "";
+          const expectedAmount = plan === "pro" ? 29900 : plan === "enterprise" ? 49900 : 0;
+          if (!expectedName || !subscription.plan_id) {
+            return Response.json({ error: "The subscription does not match a supported plan." }, { status: 400 });
+          }
+
+          const planResponse = await fetch("https://api.razorpay.com/v1/plans/" + encodeURIComponent(subscription.plan_id), {
+            headers: { Authorization: auth },
+          });
+          const planRecord = await planResponse.json();
+          if (!planResponse.ok ||
+              planRecord.item?.name !== expectedName ||
+              planRecord.item?.amount !== expectedAmount ||
+              planRecord.item?.currency !== "INR" ||
+              planRecord.period !== "monthly" ||
+              planRecord.interval !== 1) {
+            return Response.json({ error: "The recurring plan amount or billing interval could not be verified." }, { status: 400 });
           }
           if (subscription.status !== "authenticated" && subscription.status !== "active") {
-            return Response.json({ error: "Razorpay has not confirmed an active subscription yet." }, { status: 402 });
+            return Response.json({ error: "Razorpay has not confirmed an authorised subscription yet." }, { status: 402 });
           }
 
           return Response.json({
