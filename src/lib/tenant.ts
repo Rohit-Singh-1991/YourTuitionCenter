@@ -1,0 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
+export type Tenant={id:string;institute_name:string;slug:string;plan:"free"|"pro"|"enterprise";subscription_status:string;subscription_expires_at:string|null;staff_access_code_set:boolean};
+export async function getMyTenant(){const {data,error}=await supabase.rpc("get_my_tenant");if(error)throw error;return data as Tenant|null;}
+export async function completeTenantSetup(input:{instituteName:string;slug:string;staffAccessCode:string}){const {data,error}=await supabase.rpc("complete_tenant_setup",{p_institute_name:input.instituteName,p_slug:input.slug,p_staff_access_code:input.staffAccessCode});if(error)throw error;return data;}

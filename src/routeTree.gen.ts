@@ -1,0 +1,1 @@
+import {Route as Root} from "./routes/__root";import {Route as Home} from "./routes/index";import {Route as Auth} from "./routes/auth";import {Route as Pricing} from "./routes/pricing";import {Route as Subscribe} from "./routes/subscribe";import {Route as Dashboard} from "./routes/dashboard";export const routeTree=Root.addChildren([Home,Auth,Pricing,Subscribe,Dashboard]);
