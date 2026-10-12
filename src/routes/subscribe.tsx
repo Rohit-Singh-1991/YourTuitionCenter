@@ -155,7 +155,7 @@ function Subscribe() {
         </Button>
       </form>
 
-      {plan !== "free" && <p className="mt-4 text-xs leading-5 text-muted-foreground">Paid plans use recurring monthly billing. Checkout will be available once the Razorpay secret and monthly plan IDs are configured securely in Vercel. No UPI payment is accepted without server-side verification.</p>}
+      {plan !== "free" && <p className="mt-4 text-xs leading-5 text-muted-foreground">Paid plans use recurring monthly billing. Razorpay creates or reuses the monthly plan automatically; checkout becomes available when the Razorpay secret is configured securely in Vercel. No UPI payment is accepted without server-side verification.</p>}
     </Card>
   </main>;
 }
