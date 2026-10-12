@@ -12,7 +12,7 @@ declare global {
   interface Window { Razorpay?: new (options: any) => any; }
 }
 
-export const Route=createFileRoute("/subscribe")({component:Subscribe});
+export const Route=createFileRoute("/subscribe")({validateSearch:(s:any)=>({plan:s.plan==="free"||s.plan==="enterprise"||s.plan==="pro"?s.plan:"pro"}),component:Subscribe});
 
 function loadRazorpay(){
   return new Promise<void>((resolve,reject)=>{
@@ -28,7 +28,8 @@ function loadRazorpay(){
 
 function Subscribe(){
   const nav=useNavigate();
-  const [plan,setPlan]=useState<"pro"|"enterprise">("pro");
+  const search=Route.useSearch();
+  const [plan,setPlan]=useState<"free"|"pro"|"enterprise">(search.plan);
   const [instituteName,setInstituteName]=useState("");
   const [slug,setSlug]=useState("");
   const [code,setCode]=useState("");
@@ -36,9 +37,10 @@ function Subscribe(){
   const [qr,setQr]=useState("");
   const [message,setMessage]=useState("");
   const [loading,setLoading]=useState(false);
-  const amount=plan==="pro"?299:499;
+  const amount=plan==="free"?0:plan==="pro"?299:499;
 
   useEffect(()=>{
+    if(plan==="free"){setQr("");return;}
     const upi=`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("YourTuitionCenter")}&am=${amount}&cu=INR&tn=${encodeURIComponent(plan==="pro"?"Pro monthly subscription":"Enterprise monthly subscription")}`;
     QRCode.toDataURL(upi,{width:280,margin:2}).then(setQr);
   },[amount,plan]);
@@ -46,8 +48,13 @@ function Subscribe(){
   async function submit(e:any){
     e.preventDefault();
     setMessage("");
-    if(!instituteName.trim()||!slug.trim()||code.length<4){
-      setMessage("Please complete the institute name, website slug and staff access code.");
+    if(!instituteName.trim()||!slug.trim()||(plan!=="free"&&code.length<4)){
+      setMessage("Please complete the institute name and website slug. Paid plans also require a staff access code.");
+      return;
+    }
+    if(plan==="free"){
+      localStorage.setItem("ytc_setup",JSON.stringify({plan,instituteName,slug,staffAccessCode:"",paymentMethod:"free",paymentAmount:0,paymentStatus:"not-required"}));
+      nav({to:"/dashboard"});
       return;
     }
     setLoading(true);
@@ -113,20 +120,20 @@ function Subscribe(){
   return <main className="grid min-h-screen place-items-center bg-muted/30 px-4 py-10">
     <Card className="w-full max-w-2xl rounded-3xl p-7">
       <p className="text-xs font-bold uppercase tracking-widest text-primary">Centre setup</p>
-      <h1 className="mt-2 text-3xl font-extrabold">Create your digital tuition centre</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Pay securely with Razorpay. UPI QR remains available as a manual fallback.</p>
+      <h1 className="mt-2 text-3xl font-extrabold">Set up Your Tuition Center</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Your Tuition Center is the app name. Enter your own tuition centre name below and configure your selected plan.</p>
 
       <form onSubmit={submit} className="mt-7 space-y-4">
         <div><Label>Institute name</Label><Input required value={instituteName} onChange={e=>setInstituteName(e.target.value)} placeholder="Your Tuition Center"/></div>
         <div><Label>Website slug</Label><Input required value={slug} onChange={e=>setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,"-"))} placeholder="your-tuition-center"/></div>
-        <div><Label>Staff access code</Label><Input required minLength={4} value={code} onChange={e=>setCode(e.target.value)} placeholder="Required only during staff/admin signup"/></div>
-        <div><Label>Plan</Label><select className="h-10 w-full rounded-md border bg-background px-3" value={plan} onChange={e=>setPlan(e.target.value as "pro"|"enterprise")}><option value="pro">Pro — ₹299/month</option><option value="enterprise">Enterprise — ₹499/month</option></select></div>
+        {plan!=="free"&&<div><Label>Staff access code</Label><Input required minLength={4} value={code} onChange={e=>setCode(e.target.value)} placeholder="Create a staff/admin access code"/></div>}
+        <div><Label>Plan</Label><select className="h-10 w-full rounded-md border bg-background px-3" value={plan} onChange={e=>setPlan(e.target.value as "free"|"pro"|"enterprise")}><option value="free">Free — ₹0</option><option value="pro">Pro — ₹299/month</option><option value="enterprise">Enterprise — ₹499/month</option></select></div>
 
         {message&&<p className="text-sm text-destructive">{message}</p>}
-        <Button disabled={loading} className="w-full rounded-full">{loading?"Opening secure payment…":"Pay securely with Razorpay"}</Button>
+        <Button disabled={loading} className="w-full rounded-full">{loading?"Opening secure payment…":plan==="free"?"Create free centre":`Pay ₹${amount}/month with Razorpay`}</Button>
       </form>
 
-      <div className="mt-6 rounded-2xl border bg-background p-5 text-center">
+      {plan!=="free"&&<div className="mt-6 rounded-2xl border bg-background p-5 text-center">
         <p className="text-sm font-semibold">Manual UPI fallback — ₹{amount}</p>
         <p className="mt-1 font-mono text-sm font-bold">{UPI_ID}</p>
         {qr&&<img src={qr} alt={`UPI QR for ₹${amount}`} className="mx-auto mt-4 h-56 w-56 rounded-xl border p-2"/>}
@@ -134,9 +141,9 @@ function Subscribe(){
           <Input required minLength={6} value={utr} onChange={e=>setUtr(e.target.value)} placeholder="Enter UTR after UPI payment"/>
           <Button variant="outline" className="w-full rounded-full">Submit UPI for manual verification</Button>
         </form>
-      </div>
+      </div>}
 
-      <p className="mt-4 text-xs text-muted-foreground">Razorpay checkout verifies the payment signature on the server. Monthly recurring billing still requires a Razorpay Subscription plan; the current checkout records the selected plan and processes the initial payment.</p>
+      {plan!=="free"&&<p className="mt-4 text-xs text-muted-foreground">Razorpay checkout verifies the payment signature on the server. Monthly recurring billing still requires a Razorpay Subscription plan; the current checkout records the selected plan and processes the initial payment.</p>}
     </Card>
   </main>
 }
