@@ -9,10 +9,9 @@ export const Route = createFileRoute("/api/razorpay/subscription")({
           const plan = body.plan === "enterprise" ? "enterprise" : body.plan === "pro" ? "pro" : null;
           const instituteName = typeof body.instituteName === "string" ? body.instituteName.trim().slice(0, 120) : "";
           const slug = typeof body.slug === "string" ? body.slug.trim().toLowerCase() : "";
-          const staffAccessCode = typeof body.staffAccessCode === "string" ? body.staffAccessCode : "";
 
-          if (!plan || !instituteName || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || staffAccessCode.length < 4 || staffAccessCode.length > 64) {
-            return Response.json({ error: "Enter a valid centre name, website slug and staff access code." }, { status: 400 });
+          if (!plan || !instituteName || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+            return Response.json({ error: "Enter a valid centre name and website slug." }, { status: 400 });
           }
 
           const keyId = process.env.RAZORPAY_KEY_ID;
