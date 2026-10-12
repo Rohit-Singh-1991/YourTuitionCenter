@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, ArrowRight, ShieldCheck, Users, LayoutDashboard, Sparkles } from "lucide-react";
+import { Check, GraduationCap, Sparkles, ShieldCheck, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -7,86 +7,47 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tuition Centre Management Software & Website Builder | YourTuitionCenter" },
-      {
-        name: "description",
-        content: "Launch a professional tuition centre website and manage admissions, batches, fees, parent communication, staff and website content in one platform. Start free; upgrade as your centre grows.",
-      },
-      { property: "og:title", content: "YourTuitionCenter — Website & Management Software for Tuition Centres" },
-      {
-        property: "og:description",
-        content: "One platform for tuition centre websites, admissions, batches, fees, parent portals, staff and CMS. Start free and upgrade when ready.",
-      },
+      { title: "Your Tuition Center | Plans for Tuition & Coaching Centres" },
+      { name: "description", content: "Choose Free, Pro or Enterprise for Your Tuition Center. Set up your centre's own name and manage your tuition centre online." },
+      { property: "og:title", content: "Your Tuition Center — Choose Your Plan" },
+      { property: "og:description", content: "Simple plans for tuition centres: Free, Pro and Enterprise." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
     ],
-    scripts: [{
-      type: "application/ld+json",
-      children: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        name: "YourTuitionCenter",
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        description: "Website builder and management software for tuition centres, coaching institutes and education centres.",
-      }),
-    }],
   }),
   component: YourTuitionCenterHome,
 });
 
 const plans = [
-  { key:"free", name:"Free", price:"₹0", suffix:"", desc:"Launch a professional tuition-centre website and start building your digital presence.", features:["Professional public website","Centre profile and contact details","Course/service showcase","Parent enquiry entry points"] },
-  { key:"pro", name:"Pro", price:"₹299", suffix:"/month", desc:"Run your centre with the complete platform, with selected advanced admin and staff controls restricted.", features:["Everything in Free","Parent portal","Academic & batch management","Fees, admissions & enquiries","CMS for your complete website","Staff workspace","Selected admin controls restricted"] },
-  { key:"enterprise", name:"Enterprise", price:"₹499", suffix:"/month", desc:"Everything enabled for serious tuition centres that want complete operational control.", features:["Everything in Pro","Full admin dashboard","Full staff dashboard","Complete CMS","All operational modules","Advanced settings & controls","Priority-ready architecture"] },
+  { key: "free", name: "Free", price: "₹0", suffix: "forever", desc: "Start with the essentials and establish your centre online.", icon: GraduationCap, features: ["Public centre profile and contact details", "Basic course showcase", "Parent enquiry entry points", "Basic centre settings"] },
+  { key: "pro", name: "Pro", price: "₹299", suffix: "/month", desc: "Manage daily centre operations with more tools and control.", icon: Zap, features: ["Everything in Free", "Parent portal", "Academic and batch management", "Fees, admissions and enquiries", "Website CMS and content editing", "Staff workspace"] },
+  { key: "enterprise", name: "Enterprise", price: "₹499", suffix: "/month", desc: "Unlock the complete platform for full operational control.", icon: ShieldCheck, features: ["Everything in Pro", "Full admin and staff dashboards", "All operational modules enabled", "Complete CMS and advanced settings", "Full platform capabilities"] },
 ] as const;
 
 function YourTuitionCenterHome() {
- return <SiteLayout>
-  <main className="min-h-screen">
-   <section className="relative overflow-hidden bg-[image:var(--gradient-brand)] px-4 py-20 text-primary-foreground sm:py-28">
-    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"/>
-    <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-white/10 blur-3xl"/>
-    <div className="relative mx-auto max-w-6xl">
-      <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[.18em]"><Sparkles className="h-4 w-4"/> Education centre SaaS</span>
-      <div className="mt-7 max-w-4xl">
-       <h1 className="text-5xl font-extrabold leading-[1.02] sm:text-6xl lg:text-7xl">Your Tuition Center.<br/><span className="text-white/75">Your brand. Your digital campus.</span></h1>
-       <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">YourTuitionCenter gives tuition centres a professional website, parent experience, academic operations, staff management and a powerful CMS — all under the centre's own identity.</p>
-       <div className="mt-8 flex flex-wrap gap-3">
-        <Button asChild size="lg" className="rounded-full bg-white text-primary hover:bg-white/90"><a href="#plans">Explore plans <ArrowRight className="ml-2 h-4 w-4"/></a></Button>
-        <Button asChild size="lg" variant="outline" className="rounded-full border-white/30 bg-transparent text-white hover:bg-white/10"><Link to="/auth?mode=signup">Create account</Link></Button>
-       </div>
-      </div>
-      <div className="mt-14 grid gap-4 sm:grid-cols-3">
-       {[["One platform","Website + CMS + operations"],["Multi-role","Admin + staff + parents"],["Built to scale","From free website to full SaaS"]].map(([a,b])=><div key={a} className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"><div className="font-bold">{a}</div><div className="mt-1 text-sm text-white/70">{b}</div></div>)}
-      </div>
+  return <main className="min-h-screen bg-background px-4 py-10 sm:py-16">
+    <div className="mx-auto max-w-6xl">
+      <header className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><GraduationCap className="h-7 w-7" /></div>
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-[.16em] text-primary"><Sparkles className="h-3.5 w-3.5" /> Tuition centre management</p>
+        <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-6xl">Your Tuition Center</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Choose a plan for your tuition centre. During setup, add your own centre name and create your digital campus.</p>
+      </header>
+      <section aria-label="Subscription plans" className="mt-10 grid items-stretch gap-5 md:grid-cols-3 sm:mt-14">
+        {plans.map((p) => {
+          const Icon = p.icon;
+          return <Card key={p.key} className={`relative flex h-full flex-col rounded-3xl p-6 sm:p-7 ${p.key === "pro" ? "border-primary shadow-[var(--shadow-glow)] md:-translate-y-2" : ""}`}>
+            {p.key === "pro" && <span className="absolute right-5 top-5 rounded-full bg-primary px-3 py-1 text-[10px] font-bold text-primary-foreground">POPULAR</span>}
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div>
+            <h2 className="mt-5 text-xl font-extrabold">{p.name}</h2>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-muted-foreground">{p.desc}</p>
+            <div className="mt-5 flex items-baseline gap-1"><span className="text-4xl font-extrabold">{p.price}</span><span className="text-sm text-muted-foreground">{p.suffix}</span></div>
+            <div className="my-6 h-px bg-border" />
+            <ul className="flex-1 space-y-3">{p.features.map((f) => <li key={f} className="flex gap-2 text-sm leading-5"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{f}</span></li>)}</ul>
+            <Button asChild className="mt-8 w-full rounded-full" variant={p.key === "pro" ? "default" : "outline"}><Link to="/subscribe" search={{ plan: p.key } as any}>{p.key === "free" ? "Get started free" : "Choose " + p.name}</Link></Button>
+          </Card>;
+        })}
+      </section>
+      <p className="mt-10 text-center text-xs text-muted-foreground">Your Tuition Center is the platform name. Your own tuition centre name is collected during setup.</p>
     </div>
-   </section>
-
-   <section id="plans" className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-    <div className="text-center"><span className="text-xs font-bold uppercase tracking-[.18em] text-primary">Simple monthly plans</span><h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Choose the level that fits your centre</h2><p className="mx-auto mt-3 max-w-2xl text-muted-foreground">Start with a website. Upgrade when you're ready to run your complete tuition-centre operation online.</p></div>
-    <div className="mt-10 grid gap-5 lg:grid-cols-3">
-     {plans.map((p)=> <Card key={p.key} className={`relative rounded-3xl p-7 ${p.key==="pro"?"border-primary shadow-[var(--shadow-glow)]":""}`}>
-       {p.key==="pro" && <span className="absolute right-5 top-5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">MOST POPULAR</span>}
-       <div className="text-sm font-bold uppercase tracking-widest text-primary">{p.name}</div>
-       <div className="mt-4"><span className="text-4xl font-extrabold">{p.price}</span><span className="text-sm text-muted-foreground">{p.suffix}</span></div>
-       <p className="mt-3 min-h-16 text-sm text-muted-foreground">{p.desc}</p>
-       <div className="mt-5 space-y-3">{p.features.map(f=><div key={f} className="flex gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary"/><span>{f}</span></div>)}</div>
-       <Button asChild className="mt-7 w-full rounded-full" variant={p.key==="enterprise"?"default":"outline"}><Link to="/auth?mode=signup">{p.key==="free"?"Start Free":"Choose "+p.name}</Link></Button>
-     </Card>)}
-    </div>
-   </section>
-
-   <section className="bg-muted/40 px-4 py-16">
-    <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-3">
-     {[{i:LayoutDashboard,t:"Your own CMS",d:"After subscribing, configure your centre name, branding, content, courses, branches and public website from the admin workspace."},{i:Users,t:"Role-based access",d:"Admin and staff signup uses your private access code. Parents can create accounts without an access code and can continue with Google."},{i:ShieldCheck,t:"Subscription controlled",d:"Your plan determines exactly which admin and staff capabilities are available. Enterprise unlocks the complete platform."}].map(({i:Icon,t,d})=><Card key={t} className="rounded-3xl p-7"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-5 w-5"/></span><h3 className="mt-5 text-lg font-bold">{t}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{d}</p></Card>)}
-    </div>
-   </section>
-
-   <footer className="px-4 py-10 text-center text-xs text-muted-foreground">
-    <p>About & Contact · YourTuitionCenter is powered by Digicreators</p>
-    <p className="mt-2">Digicreators · <a className="font-semibold text-primary underline" href="https://digicreators.shop" target="_blank" rel="noreferrer">digicreators.shop</a> · <a className="font-semibold text-primary" href="tel:9910474663">9910474663</a></p>
-   </footer>
-  </main>
- </SiteLayout>
+  </main>;
 }
